@@ -1,14 +1,57 @@
-import Koa from 'koa';
-import bodyParser from 'koa-bodyparser';
-import AppRouter from './router';
+import app from './app';
+import Debug from 'debug';
+import http from 'http';
 
-// create koa app
-const app = new Koa();
+const debug = Debug('demo:server');
 
-app.use(bodyParser());
-app.use(AppRouter.routes())
-    .use(AppRouter.allowedMethods());
+const normalizePort = (val: string) => {
+    const port = parseInt(val, 10);
 
-app.listen(3000);
+    if (isNaN(port)) {
+        return val;
+    }
 
-console.log("Koa application is up and running on port 3000");
+    if (port >= 0) {
+        return port;
+    }
+
+    return false;
+}
+
+const port = normalizePort(process.env.PORT || '3000');
+
+const server = http.createServer(app.callback());
+
+server.listen(port);
+
+server.on('error', (error: any) => {
+    if (error?.syscall !== 'listen') {
+        throw error;
+    }
+
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
+
+    // handle specific listen errors with friendly messages
+    switch (error?.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+});
+
+server.on('listening', () => {
+    const addr = server.address();
+    const bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+});
