@@ -27,7 +27,6 @@
     "koa": "^2.5.0",
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.4.0",
-    "mysql": "^2.15.0",
     "rimraf": "^3.0.2"
   },
   "scripts": {
